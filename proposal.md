@@ -42,6 +42,8 @@ read reviews filtered by author, ISBN or title
   * mark books as favorite
   * create own list of books to read and check off
   * delete items on list
+  * search other users in the database who like the same books
+  * find other recommended books by the same author
 
 
 e. What will the user flow look like?
@@ -55,4 +57,4 @@ e. What will the user flow look like?
 
 f. What features make your site more than CRUD? Do you have any stretch goals?
 * The site will use an API to fetch data and then use it as per the functionalities mentioned above to make the site go beyond CRUD implementation. 
-* My stretch goals will be able to implement a system to recommend books based on books by the same author and let users search other users in the database who like the same books.
+* My stretch goals will be to implement a system to track most read or favorited books by authors and/or bestselling lists on the site by date
