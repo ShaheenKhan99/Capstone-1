@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} Book Details {% endblock %}
+
+{% block content %}
+{% for result in results %}
+<div class="jumbotron">
+  <h1 id="title">{{ result.title }}</h1>
+  <p class="lead" id="author">Author: {{ result.author }}</p>
+  {% if result.publication_dt %}
+  <p>Publication Date: {{ result.publication_dt }}</p>
+  {% endif %}
+  {% if result.description %}
+  <p id="description">Description: {{ result.description }}</p>
+  {% endif %}
+
+{% if g.user %}
+<form id="add-book-from-api" action="/books/{{ result.title.lower().replace("%20", "") }}/author/{{ result.author.replace("%20", "") }}" method="POST">
+  <button class="btn btn-success" type="submit">Add to my booklist</button>
+</form>
+{% endif %}
+
+
+</div>
+
+{% endfor %}
+<a href="/">Back to Homepage</a>
+
+
+
+{% endblock %}
+

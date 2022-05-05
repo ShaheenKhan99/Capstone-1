@@ -1,0 +1,55 @@
+{% extends 'users/detail.html' %}
+
+{% block title %} User Profile  {% endblock %}
+
+{% block user_details %}
+
+
+<div class="container">
+  <h5>Username: {{ user.username }}</h5>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-6">
+          <h6 class="mt-4"style="text-align:center">My books</h6>
+            <ul class="list-group" id="booklist">
+              {% for book in user.booklist %}
+                <li class="list-group-item">
+                  <a href="/users/{{ user.id }}"></a>
+                  <a href="/books/{{ book.id }}" class="book-link">
+                    <div class="booklist-area">
+                      <p>{{ book.title.title() }}</p>  
+                    </div>
+                  </a>
+
+                  {% if g.user.id == user.id %}
+                  <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}" class="form-inline">
+                    <button class="btn btn-outline-danger btn-sm">Delete Book</button>
+                  </form>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+        </div>
+        <div class="col-sm-6">
+          <h5 class="mt-4" style="text-align:center">My reviews</h5>
+          <ul class="list-group" id="booklist">
+            {% for review in user.reviews %}
+    
+              <li class="list-group-item">
+                <a href="/users/{{ user.id }}"></a>
+                <a href="/reviews/{{ review.id }}" class="review-link">
+                  <div class="review-area">
+                    <p>{{ book.review }}</p>  
+                  </div>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        </div>
+    </div>
+  </div>
+      
+
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %} Book Details {% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="jumbotron">
+    <h1>{{ book.title.title() }}</h1>
+    <p class="lead" >{{ book.author }}</p>
+
+    {% if book.category %}
+    <p>{{ book.category }}</p>
+    {% endif %}
+
+    {% if book.publication_dt %}
+    <p>{{ book.publication_dt }}</p>
+    {% endif %}
+
+    <p>{{ book.description }}</p>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="booklist-area">
+        <h5>Users reading this book</h5>
+        <ul>
+        {% for user in book.users %}
+          <li><a href="/users/{{ user.id }}">{{user.username }}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+    
+    <div class="col-sm-6">
+      <div class="review-area">
+        <h5>Reviews for {{ book.title.title() }}</h5>
+        <ul>
+          {% for review in reviews %}
+            <li>{{review.summary}}</li>
+          {% endfor %}
+        </ul> 
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

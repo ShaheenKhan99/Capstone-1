@@ -1,0 +1,24 @@
+{% extends 'users/detail.html' %}
+
+{% block title %} User BookList  {% endblock %}
+
+{% block user_details %}
+
+<ul class="list-group" id="booklist">
+  {% for book in user.booklist %}
+
+  <li class="list-group-item">
+    <a href="/users/{{ user.id }}"></a>
+
+    <a href="/books/{{ book.id }}" class="book-link">
+    <div class="booklist-area">
+      <p>{{ book.title.title() }}
+      <p>  
+    </div>
+  </a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
+

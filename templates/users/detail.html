@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %} User Details {% endblock %}
+
+{% block content %}
+
+<div id="bookgenie-hero" class="full-width">
+  <div class="row full-width">
+    <div class="container">
+      <div class="row justify-content-end">
+        <div class="col-9">
+          <ul class="user-stats nav nav-pills">
+            <li class="stat mx-3">
+              <p class="small">Books</p>
+              <h4>
+                <a href="/users/{{ user.id }}/books">{{ user.booklist | length }}</a>
+              </h4>
+            </li>
+            <li class="stat mx-3">
+              <p class="small">Reviews</p>
+              <h4>
+                <a href="/users/{{user.id}}/reviews">{{ user.reviews | length }}</a>
+              </h4>
+            </li>
+
+            <li class="stat mx-3">
+              <p class="small">Following</p>
+              <h4>
+                <a href="/users/{{ user.id }}/following">{{ user.following | length }}</a>
+              </h4>
+            </li>
+
+            <li class="stat mx-3">
+              <p class="small">Followers</p>
+              <h4>
+                <a href="/users/{{ user.id }}/followers">{{ user.followers | length }}</a>
+              </h4>
+            </li>
+
+          <div class="ml-auto">
+            {% if g.user.id == user.id %}
+            <a href="/users/profile" class="btn btn-outline-secondary mt-2">Edit Profile</a>
+            <form method="POST" action="/users/delete" class="form-inline">
+              <button class="btn btn-outline-danger ml-2 mt-2">Delete Profile</button>
+            </form>
+            {% elif g.user %}
+            {% if g.user.is_following(user) %}
+            <form method="POST" action="/users/stop-following/{{ user.id }}">
+              <button class="btn btn-primary">Unfollow</button>
+            </form>
+            {% else %}
+            <form method="POST" action="/users/follow/{{ user.id }}">
+              <button class="btn btn-outline-primary">Follow</button>
+            </form>
+            {% endif %}
+            {% endif %}
+          </div>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block user_details %}
+{% endblock %}
+
+</div>
+
+{% endblock %}
