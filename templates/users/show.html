@@ -4,52 +4,77 @@
 
 {% block user_details %}
 
+<div class="row mt-8">
+  <div class="col-sm-6 bg-secondary">
+    <h6 class="mt-4">My books</h6>
+      <ul class="list-group" id="booklist">
 
-<div class="container">
-  <h5>Username: {{ user.username }}</h5>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-6">
-          <h6 class="mt-4"style="text-align:center">My books</h6>
-            <ul class="list-group" id="booklist">
-              {% for book in user.booklist %}
-                <li class="list-group-item">
-                  <a href="/users/{{ user.id }}"></a>
-                  <a href="/books/{{ book.id }}" class="book-link">
-                    <div class="booklist-area">
-                      <p>{{ book.title.title() }}</p>  
-                    </div>
-                  </a>
+        {% for book in user.booklist %}
 
-                  {% if g.user.id == user.id %}
-                  <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}" class="form-inline">
-                    <button class="btn btn-outline-danger btn-sm">Delete Book</button>
-                  </form>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-        </div>
-        <div class="col-sm-6">
-          <h5 class="mt-4" style="text-align:center">My reviews</h5>
-          <ul class="list-group" id="booklist">
-            {% for review in user.reviews %}
-    
-              <li class="list-group-item">
-                <a href="/users/{{ user.id }}"></a>
-                <a href="/reviews/{{ review.id }}" class="review-link">
-                  <div class="review-area">
-                    <p>{{ book.review }}</p>  
-                  </div>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-        </div>
+          <li class="list-group-item bg-light">
+            <a href="/users/{{ user.id }}"></a>
+            <a href="/books/{{ book.id }}" class="book-link">
+              <div class="booklist-area">
+                <p>{{ book.title.title() }}</p>  
+              </div>
+            </a>
+
+            {% if g.user.id == user.id %}
+
+              <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}" class="form-inline">
+                <button class="btn btn-outline-danger btn-sm">Remove</button>
+              </form>
+
+            {% endif %}
+
+          </li>
+
+        {% endfor %}
+
+      </ul>
     </div>
+
+  <div class="col-sm-6 bg-secondary">
+
+    {% if user.reviews %}
+
+      <h6 class="mt-4">My reviews</h6>
+      <ul class="list-group" id="booklist">
+              
+        {% for review in user.reviews %}
+    
+          <li class="list-group-item bg-light">   
+              <p>Review for : 
+                <a href="/books/{{ review.book_id }}" class="book-link">
+                      {{ review.book.title.title() }} 
+                </a>
+              </p>
+              <p>{{ review.summary }}</p>  
+              {% if review.url %}
+              <p><a href="{{ review.url }}">Read reviews on other sites</a></p>
+              {% endif %}
+
+              {% if g.user.id == review.user_id %}
+
+                <form method="GET" action="/reviews/{{ review.id }}/edit" class="form-inline">
+                  <button class="btn btn-outline-info btn-sm">Edit Review</button>
+                </form>
+                      
+                <form method="POST" action="/reviews/{{ review.id }}/delete" class="form-inline">
+                    <button class="btn btn-outline-danger btn-sm mt-4">Delete Review</button>
+                </form>
+              {% endif %}
+          </li>
+
+        {% endfor %}
+
+      </ul>
+
+    {% endif %}
+
   </div>
-      
+</div>
 
-
+    
+  
 {% endblock %}

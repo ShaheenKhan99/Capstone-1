@@ -4,58 +4,60 @@
 
 {% block content %}
 
-<div id="bookgenie-hero" class="full-width">
+<div>
   <div class="row full-width">
-    <div class="container">
-      <div class="row justify-content-end">
+    <div class="container">  
+      <div class="row justify-content-end" id="stats-div">
+        <h4 class="text-left mt-4" id="username-heading">Username: {{ user.username }}</h4>
         <div class="col-9">
           <ul class="user-stats nav nav-pills">
             <li class="stat mx-3">
-              <p class="small">Books</p>
-              <h4>
+              <p>Books</p>
+              <p class="count">
                 <a href="/users/{{ user.id }}/books">{{ user.booklist | length }}</a>
-              </h4>
+              </p>
             </li>
             <li class="stat mx-3">
-              <p class="small">Reviews</p>
-              <h4>
-                <a href="/users/{{user.id}}/reviews">{{ user.reviews | length }}</a>
-              </h4>
+              <p>Reviews</p>
+              <p class="count">
+                <a href="/users/{{ user.id }}/reviews">{{ user.reviews | length }}</a>
+              </p>
             </li>
 
             <li class="stat mx-3">
-              <p class="small">Following</p>
-              <h4>
+              <p>Following</p>
+              <p class="count">
                 <a href="/users/{{ user.id }}/following">{{ user.following | length }}</a>
-              </h4>
+              </p>
             </li>
 
             <li class="stat mx-3">
-              <p class="small">Followers</p>
-              <h4>
+              <p>Followers</p>
+              <p class="count">
                 <a href="/users/{{ user.id }}/followers">{{ user.followers | length }}</a>
-              </h4>
+              </p>
             </li>
-
-          <div class="ml-auto">
-            {% if g.user.id == user.id %}
-            <a href="/users/profile" class="btn btn-outline-secondary mt-2">Edit Profile</a>
-            <form method="POST" action="/users/delete" class="form-inline">
-              <button class="btn btn-outline-danger ml-2 mt-2">Delete Profile</button>
-            </form>
-            {% elif g.user %}
-            {% if g.user.is_following(user) %}
-            <form method="POST" action="/users/stop-following/{{ user.id }}">
-              <button class="btn btn-primary">Unfollow</button>
-            </form>
-            {% else %}
-            <form method="POST" action="/users/follow/{{ user.id }}">
-              <button class="btn btn-outline-primary">Follow</button>
-            </form>
-            {% endif %}
-            {% endif %}
-          </div>
+            <div class="col-auto mr-auto">
+              {% if g.user.id == user.id %}
+              <a href="/users/profile" class="btn btn-outline-secondary btn-sm mb-2">Edit Profile</a>
+              <form method="POST" action="/users/delete" class="form-inline">
+                <button class="btn btn-outline-danger btn-sm">Delete Profile</button>
+              </form>
+              {% elif g.user %}
+              {% if g.user.is_following(user) %}
+              <form method="POST" action="/users/stop-following/{{ user.id }}">
+                <button class="btn btn-primary btn-sm">Unfollow</button>
+              </form>
+              {% else %}
+              <form method="POST" action="/users/follow/{{ user.id }}">
+                <button class="btn btn-outline-primary btn-sm">Follow</button>
+              </form>
+              {% endif %}
+              {% endif %}
+            </div>
         </ul>
+      
+        
       </div>
     </div>
   </div>

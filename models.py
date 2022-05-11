@@ -61,6 +61,7 @@ class BookList(db.Model):
     )
 
 
+
     def __repr__(self):
         return f"<BookList {self.id} {self.user_id} {self.book_id}>"
 
@@ -110,7 +111,7 @@ class User(db.Model):
     )
    
     booklist = db.relationship('Book', secondary='booklists', backref='users')
-
+    reviews = db.relationship('Review', backref='users')
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -185,6 +186,11 @@ class Book(db.Model):
         unique=True
     )  
 
+    image = db.Column(
+        db.String,
+        nullable = True
+    )
+
     publication_dt = db.Column(
         db.Date,
         nullable = True
@@ -192,12 +198,12 @@ class Book(db.Model):
 
     description = db.Column(
         db.Text,
-        nullable = False
+        nullable = True
     )
 
     author = db.Column(
         db.String,
-        nullable = False,
+        nullable = False
     )
 
     category = db.Column(
@@ -221,11 +227,9 @@ class Book(db.Model):
     )
 
     
-    
-
-
-
     def __repr__(self):
+        """Provide helpful representation when printed"""
+        
         return f"<Book {self.id} {self.title} {self.author} {self.description}>"
 
 
@@ -244,7 +248,7 @@ class Review(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete='cascade'),
-        nullable = True
+        nullable = False
     )
 
     book_id = db.Column(
@@ -263,8 +267,50 @@ class Review(db.Model):
         nullable = False
     )
 
+    book = db.relationship('Book', backref='reviews')
+
     def __repr__(self):
-        return f"<Category {self.id} {self.summary}>"
+        """Provide helpful representation when printed"""
+
+        return f"<Review {self.id} {self.summary}>"
+
+
+class Rating(db.Model):
+    """Individual rating"""
+
+    __tablename = 'ratings'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    score = db.Column(
+        db.Integer,
+        nullable=False)
+
+    book_id = db.Column(
+        db.Integer,
+        db.ForeignKey('books.id', ondelete='cascade'),
+        nullable = False
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='cascade'),
+        nullable = True
+    )
+
+    
+    user = db.relationship("User", backref="ratings")
+
+    book = db.relationship("Book", backref="ratings")
+
+    def __repr__(self):
+        """Provide helpful representation when printed"""
+
+        return f"<Rating {self.id} {self.book_id} {self.user_id}>"
 
 
 class Category(db.Model):
@@ -284,6 +330,8 @@ class Category(db.Model):
     )
     
     def __repr__(self):
+        """Provide helpful representation when printed"""
+
         return f"<Category {self.id} {self.category_name}>"
 
 
@@ -314,6 +362,8 @@ class Author(db.Model):
     )
 
     def __repr__(self):
+        """Provide helpful representation when printed"""
+
         return f"<Author {self.id} {self.author_name}>"
 
 

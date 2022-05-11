@@ -2,7 +2,7 @@ import os
 import pdb
 import requests
 
-from flask import Flask, render_template, request, flash, redirect, session, g, abort, jsonify
+from flask import Flask, render_template, request, flash, redirect, session, g
 
 from secrets import API_SECRET_KEY
 
@@ -10,9 +10,12 @@ from secrets import API_SECRET_KEY
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import db, connect_db, User, Book, Review, Author, BookList, Follow
+from models import db, connect_db, User, Book, Review, BookList, Follow, Rating
 
-from forms import AddUserForm, EditUserForm, LoginForm, SearchForm
+from forms import AddUserForm, EditUserForm, LoginForm, SearchForm, AddReviewForm, EditReviewForm
+
+from api_helper import get_all_categories, get_books_by_category, get_book_by_title_author
+
 
 key = API_SECRET_KEY
 
@@ -33,7 +36,6 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-
 # db.drop_all()
 db.create_all()
 
@@ -41,106 +43,48 @@ db.create_all()
 API_BASE_URL = 'https://api.nytimes.com/svc/books/v3/'
 
 
-def get_all_categories():
-    """Return all categories from API"""
-
-    res = requests.get(f"{API_BASE_URL}lists/names.json?api-key={key}")
-
-    data = res.json()
-    results = data["results"]
-    
-    categories = [result['list_name_encoded'] for result in results]
-    categories = list(dict.fromkeys(categories))
-    return categories
-
-
-def get_book_by_author(author):
-    """Return all titles by author from API"""
-
-    res = requests.get(f"{API_BASE_URL}reviews.json?api-key={key}",
-                params={'author': author})
-
-    data = res.json()
-    results = data["results"]
-
-    return results
-
-
-def get_books_by_category(category):
-    """Return all bestselling titles for specific category from API"""
-
-    res = requests.get(f"{API_BASE_URL}lists/current/{category}.json?api-key={key}")
-
-    data = res.json()
-    results = data["results"]
-    books = results["books"]
-
-    book_results = []
-    for book in books:
-        book = {
-            "book_title": book["title"],
-            "book_author": book["author"],
-            "book_image" : book["book_image"]
-        }
-        book_results.append(book)
-    return book_results
-
-
-def get_book_by_title_author(title, author):
-    """Return book with specific title and author from API"""
-
-    res = requests.get(f"{API_BASE_URL}lists/best-sellers/history.json?api-key={key}",
-                params={'title': title, 'author': author})
-
-    data = res.json()
-    results = data["results"]
-
-    return results
-
-
 def add_book_to_database(title, author):
-    """Add book to database"""  
+    """Check to see if book is already in database. If it is, return the book already in the database. If book not in databse, add book to database and then return the book"""  
 
-    results = get_book_by_title_author(title, author)
-    
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
+    results = get_book_by_title_author(title, author)
     book = results[0]
 
-    try:    
-        new_book = Book(
+    try:   
+        book = Book(
                 title = book['title'],
                 author = book['author'],
                 description = book['description']
-        )
+            )
 
-        db.session.add(new_book)
+        db.session.add(book)
         db.session.commit()
     except IntegrityError:
-        new_book = new_book
+        flash("Book already in database", "danger")
 
-    return new_book
+    return book
 
 
 ##########################################################################
 
 @app.route('/')
 def show_home():
-    """Render home page"""
+    """Render home page including search bar for selecting a category"""
 
     form = SearchForm()
     categories = get_all_categories()
 
-    form.category.choices = ['select one'] + [category for category in categories]
+    form.category.choices = ['Select one'] + [category.title().replace('-', " ") for category in categories]
 
     return render_template('home.html', form=form, categories=categories)
 
 
 @app.route('/results', methods=["GET"])
-def show_results_from_api():
-    """Handle search and return results"""
+def show_results_from_nyt_api():
+    """Handle search form on home page and return results from NYT API"""
 
     category = request.args.get('category')
     
@@ -150,17 +94,12 @@ def show_results_from_api():
 
 
 @app.route('/books/<title>/author/<author>', methods=["GET"])  
-def show_book_info_from_api(title, author):
-    """Show book details"""  
+def show_book_info_from_nyt_api(title, author):
+    """Show book details from NYT API """  
 
     results = get_book_by_title_author(title, author)
-    if len(results) > 1:
+    if len(results) >= 1:
         results = results[0]
-    
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
 
     return render_template('books/book_details.html', results=results)
 
@@ -168,7 +107,11 @@ def show_book_info_from_api(title, author):
 
 @app.route('/books/<title>/author/<author>', methods=["POST"])  
 def add_book_to_list(title, author):
-    """Check if book is on user booklist. If not, dd book to user booklist"""  
+    """Check if book is on user booklist. If not, add book to user booklist"""  
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
 
     new_book_for_list = add_book_to_database(title, author)
 
@@ -192,7 +135,6 @@ def add_book_to_list(title, author):
     flash("Book added to your list", "success")
     return redirect(f"/users/{g.user.id}")
  
-
 
 #####################################################################
 # User signup, login, logout
@@ -255,7 +197,6 @@ def register():
         return render_template('users/signup.html', form=form)
 
 
-
 @app.route('/login', methods=["GET", "POST"])
 def login():
     """Handle user login."""
@@ -300,7 +241,7 @@ def list_users():
     if not search:
         users = User.query.all()
     else:
-        users = User.query.filter(User.username.like(f"%{search}%")).all()
+        users = User.query.filter(User.username.like(f"%{search}%".title())).all()
 
     return render_template('users/index.html', users=users)
 
@@ -320,7 +261,7 @@ def show_following(user_id):
     """Show list of people this user is following."""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
@@ -332,7 +273,7 @@ def users_followers(user_id):
     """Show list of followers of this user."""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
@@ -344,7 +285,7 @@ def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     follow_id = User.query.get_or_404(follow_id)
@@ -359,7 +300,7 @@ def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     follow_id = User.query.get(follow_id)
@@ -374,7 +315,7 @@ def edit_profile():
     """Update profile for current user."""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     user = g.user
@@ -398,7 +339,7 @@ def delete_user():
     """Delete user."""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     do_logout()
@@ -412,13 +353,29 @@ def delete_user():
 @app.route('/users/<int:user_id>/books', methods=["GET"])
 def show_user_booklist(user_id):
     """Show list of books for this user"""
+
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
    
     return render_template('users/booklist.html', user=user)
+
+
+@app.route('/users/<int:user_id>/reviews', methods=["GET"])
+def show_user_reviews(user_id):
+    """Show list of reviews for this user"""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    reviews = Review.query.filter(Review.user_id==user_id).all()
+    
+   
+    return render_template('users/reviews.html', user=user, reviews=reviews)
 
 
 ###########################################################################
@@ -434,14 +391,53 @@ def show_all_books():
 
 @app.route("/books/<int:book_id>")
 def show_book_details(book_id):
-    """return details about a specific book in database"""
+    """Display details about a specific book in database including reviews, users and ratings"""
 
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+    user = g.user
     book = Book.query.get_or_404(book_id)
     booklists = BookList.query.filter(BookList.book_id==book_id).all()
     reviews = Review.query.filter(Review.book_id==book_id).all()
+    rating = Rating.query.filter(Rating.book_id==book_id).all()
    
+    # Get average rating of movie
+    rating_scores = [rating.score for rating in book.ratings]
+    if len(rating_scores) > 0:
+        avg_rating = float(sum(rating_scores)) / len(rating_scores)
+    else:
+        avg_rating = "Not rated yet"
 
-    return render_template('books/book.html', book=book, booklists=booklists, reviews=reviews)
+    return render_template('books/book.html', book=book, booklists=booklists, reviews=reviews, user=user, rating=rating, avg_rating=avg_rating)
+
+
+@app.route('/books/<int:book_id>', methods=["POST"])
+def rate_book(book_id):
+    """Post rating for individual book"""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+   
+    new_score = request.form.get("book-rating")
+    book = Book.query.get_or_404(book_id)
+    user_id = g.user.id
+
+    rating = Rating.query.filter(Rating.user_id==user_id, Rating.book_id==book_id).first()
+
+    if not rating:
+        rating = Rating(score=new_score, user_id=user_id, book_id=book_id)
+
+    else: 
+        rating.score = new_score
+
+    db.session.add(rating)
+    db.session.commit()
+
+    return redirect(f"/books/{book.id}")
 
 
 ############################################################################
@@ -455,60 +451,160 @@ def show_all_booklists():
     users = User.query.all()
     return render_template("booklists/index.html", booklists=booklists, users=users)
 
-
-# Need to implement this route   
-@app.route('/booklists/<int:booklist_id>/add/<int:book_id>', methods=["POST"])
-def add_book_to_booklist(booklist_id, book_id):
-    """Check if user is creator of booklist then add book to booklist"""
+    
+@app.route('/booklists/<int:user_id>/add/<int:book_id>', methods=["POST"])
+def add_saved_book_to_booklist(user_id, book_id):
+    """Check if book in database is on user booklist. If not, add book to user booklist"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-    book = Book.query.get_or_404(book_id)
-    booklist = BookList.query.get_or_404(booklist.book_id)
+    new_book_for_list = Book.query.get_or_404(book_id)
 
-    if not g.user.id == booklist.user_id:
-        flash("Access unauthorized.", "danger")
-        return redirect("f/users/{g.user.id}")
+    booklist = BookList.query.filter(BookList.user_id==g.user.id).all()
 
-    for book in booklist.book_ids:
-        if book_id == book.id:
-            flash('Book already on this list', 'danger')
-            return redirect("f/users/{g.user.id}")
     
-    new_book_for_booklist = BookList(
-            user_id = g.user.id,
-            book_id = book_id)
+    curr_books = [book.id for book in booklist]
+
+    if new_book_for_list.id in curr_books:
+        flash("This book is already on your list", "danger")
+        return redirect(f"/users/{g.user.id}")
+
+    else:
+        new_book_for_list = BookList(
+        user_id = g.user.id,
+        book_id = new_book_for_list.id
+        )
+
+    db.session.add(new_book_for_list)
     db.session.commit()
 
-    return redirect("f/users/{g.user.id}")
-
-
+    flash("Book added to your list", "success")
+    return redirect(f"/users/{g.user.id}")
+ 
 
 @app.route('/booklists/<int:user_id>/delete/<int:book_id>', methods=["POST"])
 def remove_book_from_booklist(user_id, book_id):
-    """Check if user is creator of booklist then delete book from booklist"""
+    """Check if user is owner of booklist then delete book from booklist"""
 
     if not g.user:
-        flash("Access unauthorized.", "danger")
+        flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-    booklists = BookList.query.filter(BookList.book_id == book_id, BookList.user_id == user_id).all()
 
     if not g.user.id == user_id:
         flash("Access unauthorized.", "danger")
-        return redirect("f/users/{g.user.id}")
+        return redirect(f"/users/{g.user.id}")
     
-    for booklist in booklists:
-        db.session.delete(booklist)
-    db.session.commit()
+    booklist = BookList.query.filter(BookList.user_id==user_id, BookList.book_id==book_id).first()
 
+    user = User.query.get_or_404(user_id)
+
+    db.session.delete(booklist)
+    db.session.commit()
     flash("Book deleted from your list", "success")
 
-    return redirect("f/users/{g.user.id}")
+    return redirect(f"/users/{g.user.id}")
+
+##########################################################################
+# REVIEWS ROUTE
+
+@app.route("/books/<book_id>/reviews/add", methods=["GET", "POST"])
+def add_review(book_id):
+    """Display and handle form submission for adding a review for a specific book"""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+    user = g.user
+    book = Book.query.get_or_404(book_id)
+    
+    reviews = Review.query.filter(Review.user_id==g.user.id).all()
+
+    user_reviews = [review.user_id for review in book.reviews]
+
+    if user.id in user_reviews:
+        flash("You have already submitted a review for this book!", "danger")
+        return redirect(f"/books/{book.id}")
 
 
+    form = AddReviewForm()
+
+    if form.validate_on_submit():
+        summary = form.summary.data
+        url = form.url.data
+
+        new_review = Review(summary=summary, url=url, user_id=g.user.id, book_id=book.id)
+
+        db.session.add(new_review)
+        db.session.commit()
+
+        flash ("Review created successfully", "success")
+        return redirect(f"/users/{g.user.id}")
+
+    return render_template('reviews/new.html', form=form, book=book, user=user, reviews=reviews)
+
+
+
+@app.route('/reviews/<review_id>/edit', methods=["GET", "POST"])
+def edit_review(review_id):
+    """Edit review if user created review."""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+
+    review = Review.query.get_or_404(review_id)
+
+    if review.user_id != g.user.id:
+        flash("Access unauthorized", "danger")
+        return redirect(f"/users/{g.user.id}")
     
+
+    form = EditReviewForm(obj=review)
+
+    if form.validate_on_submit():
+        review.summary = form.summary.data
+        review.url = form.url.data
+
+        db.session.commit()
+        flash("Review updated", "success")
+        return redirect(f"/users/{g.user.id}")    
+
+    return render_template('reviews/edit.html', form=form, review=review)
+
+
+
+@app.route('/reviews/<review_id>/delete', methods=["POST"])
+def delete_review(review_id):
+    """Delete review if user created review."""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+
+    review = Review.query.get_or_404(review_id)
+
+    if  g.user.id != review.user_id:
+        flash("Access unauthorized", "danger")
+        return redirect(f"/users/{g.user.id}")
     
+    db.session.delete(review)
+    db.session.commit()
+    flash("Review deleted", "success")
+    
+    return redirect(f"/users/{g.user.id}")    
+
+ ##########################################################################
+ 
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """404 NOT FOUND page."""
+
+    return render_template('404.html'), 404
 

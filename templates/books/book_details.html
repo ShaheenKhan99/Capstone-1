@@ -3,28 +3,28 @@
 {% block title %} Book Details {% endblock %}
 
 {% block content %}
-{% for result in results %}
-<div class="jumbotron">
-  <h1 id="title">{{ result.title }}</h1>
-  <p class="lead" id="author">Author: {{ result.author }}</p>
-  {% if result.publication_dt %}
-  <p>Publication Date: {{ result.publication_dt }}</p>
+
+
+<div class="book-details">
+  <h1 id="title">{{ results.title.title() }}</h1>
+  <p class="lead" id="author">Author: {{ results.author.title() }}</p>
+  
+  {% if results.publication_dt %}
+  <p>Publication Date: {{ results.publication_dt }}</p>
   {% endif %}
-  {% if result.description %}
-  <p id="description">Description: {{ result.description }}</p>
+  
+  {% if results.description %}
+  <p id="description">Description: {{ results.description }}</p>
   {% endif %}
 
-{% if g.user %}
-<form id="add-book-from-api" action="/books/{{ result.title.lower().replace("%20", "") }}/author/{{ result.author.replace("%20", "") }}" method="POST">
-  <button class="btn btn-success" type="submit">Add to my booklist</button>
-</form>
-{% endif %}
-
+  {% if g.user %}
+  <form method="POST" action="/books/{{ results.title.lower().replace('%20','') }}/author/{{ results.author.replace('%20','') }}">
+    <button class="btn btn-info btn-sm">Add Book</button>
+  </form>
+  {% endif %}
 
 </div>
 
-{% endfor %}
-<a href="/">Back to Homepage</a>
 
 
 

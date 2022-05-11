@@ -4,6 +4,8 @@
 
 {% block user_details %}
 
+<div class="container">
+<h2 class="text-center mt-4">{{ user.username}}'s Booklist</h2>
 <ul class="list-group" id="booklist">
   {% for book in user.booklist %}
 
@@ -19,6 +21,6 @@
   </li>
   {% endfor %}
 </ul>
-
+</div>
 {% endblock %}
 

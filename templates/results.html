@@ -3,22 +3,22 @@
 {% block title %} Search Results Page {% endblock %}
 
 {% block content %}
-<h4 class="text-center mt-4">Bestsellers in {{ category }}</h2>
+<h4 class="text-center mt-4">Bestsellers in {{ category.title().replace('-', " ") }}</h4>
 
 <div class="container-fluid">
   <div class="row">
     {% for result in results %}
-      <div class="col-6 col-md-3">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">{{ result.book_title }}</h4>
-            <h6 class="card-subtitle mb-2 text-muted">Author {{ result.book_author }}</h6>
-            {% if result.book_image %}
-            <img src="{{ result.book_image }}" class="card-img-top" alt="">
+        <div class="col-3">
+        <div class="card" id="results" style="width:200px;height:400px;"> 
+          {% if result.book_image %}
+            <img src="{{ result.book_image }}" class="card-img-top img-thumbnail" style="width:200px;height:200px;" alt="book cover"> 
             {% endif %}
-            <a href="/books/{{ result.book_title.lower().replace('%20','') }}/author/{{ result.book_author.lower().replace('%20','') }}" class="btn btn-primary btn-sm mt-4">More Info</a>
+            <div class="card-body">
+              <h5 class="card-title">{{ result.book_title.title() }}</h5>
+              <p class="card-subtitle mb-2 text-muted">By {{ result.book_author.title() }}</p>
             
-          </div>
+              <a href="/books/{{ result.book_title.lower().replace('%20','') }}/author/{{ result.book_author.lower().replace('%20','') }}" class="btn btn-primary btn-sm mb-3">More Info</a>
+            </div>
         </div>
       </div>  
     {% endfor %}
