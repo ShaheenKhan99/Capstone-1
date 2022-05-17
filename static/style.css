@@ -66,18 +66,12 @@ body.error-404 {
 .navbar-brand {
   display: flex;
   align-items: center;
-  font-size: 2em;
+  font-size: 400px;
   font-weight: 800;
   font-family: 'Macondo', cursive;
-  letter-spacing: 3px;
+  letter-spacing: 6px;
 }
 
-
-
-.nav > li > a > img {
-  width: 32px;
-  border-radius: 32px;
-}
 
 ul.nav.navbar-nav {
   align-items: center;
@@ -252,16 +246,18 @@ h6 {
 
   .card {
     margin: 5px;
-    padding: 5px;
+    padding: 2px;
     border: 2px solid #777774;
     border-radius: 5px;
   }
 
+  
   .list-group-item {
-    border: 5px solid gray;
+    border: 2px solid gray;
     border-radius: 5px;
   }
- 
+
+  
 
 
 /* ======================================================================*/
@@ -321,3 +317,7 @@ background-size: contain;
 .star-rating i ~ i ~ i ~ i ~ i {
   width: 100%;
 }
+
+/* ========================================================================
+
+

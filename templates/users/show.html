@@ -7,14 +7,16 @@
 <div class="row mt-8">
   <div class="col-sm-6 bg-secondary">
     <h6 class="mt-4">My books</h6>
+    
       <ul class="list-group" id="booklist">
-
+         
         {% for book in user.booklist %}
-
-          <li class="list-group-item bg-light">
+       
+          <li class="list-group-item bg-light text-center">
             <a href="/users/{{ user.id }}"></a>
             <a href="/books/{{ book.id }}" class="book-link">
               <div class="booklist-area">
+                <img src="{{ book.image }}" alt="book cover" style="width:150px; height:150px;">
                 <p>{{ book.title.title() }}</p>  
               </div>
             </a>
@@ -28,9 +30,9 @@
             {% endif %}
 
           </li>
-
+       
         {% endfor %}
-
+        
       </ul>
     </div>
 
@@ -42,7 +44,7 @@
       <ul class="list-group" id="booklist">
               
         {% for review in user.reviews %}
-    
+        
           <li class="list-group-item bg-light">   
               <p>Review for : 
                 <a href="/books/{{ review.book_id }}" class="book-link">
@@ -51,7 +53,7 @@
               </p>
               <p>{{ review.summary }}</p>  
               {% if review.url %}
-              <p><a href="{{ review.url }}">Read reviews on other sites</a></p>
+              <p><a href="{{ review.url }}" target="_blank">Read reviews on other sites</a></p>
               {% endif %}
 
               {% if g.user.id == review.user_id %}
@@ -65,7 +67,7 @@
                 </form>
               {% endif %}
           </li>
-
+       
         {% endfor %}
 
       </ul>

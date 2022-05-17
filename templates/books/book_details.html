@@ -5,28 +5,38 @@
 {% block content %}
 
 
-<div class="book-details">
-  <h1 id="title">{{ results.title.title() }}</h1>
-  <p class="lead" id="author">Author: {{ results.author.title() }}</p>
-  
-  {% if results.publication_dt %}
-  <p>Publication Date: {{ results.publication_dt }}</p>
-  {% endif %}
-  
-  {% if results.description %}
-  <p id="description">Description: {{ results.description }}</p>
-  {% endif %}
+{% for book in books %}
+  <div class="card border-secondary mb-3 w-75 bg-light mx-auto">
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        <img src="{{ book['image'] }}" class="card-img" alt="book cover">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{ book['title'].title() }}</h5>
+          <p class="card-text"><small class="text-muted">{{ book['author'].title() }}</small></p>
+          <p class="card-text">{{ book['description'] }}</p>
 
-  {% if g.user %}
-  <form method="POST" action="/books/{{ results.title.lower().replace('%20','') }}/author/{{ results.author.replace('%20','') }}">
-    <button class="btn btn-info btn-sm">Add Book</button>
-  </form>
-  {% endif %}
+          {% if g.user %}
 
-</div>
+          <form method="POST" action="/results/{{ category.lower().replace('%20', "-") }}/books/{{ book['title'].replace('%20', " ") }}">
+            <button class="btn btn-info btn-sm">Add to my list </button>
+          </form>
 
+          {% else %}
 
+          <div class="mt-5">
+            <h6 class="text-muted small bg-light"><a href="/signup">Sign up</a> or <a href="/login">log in</a> to save books or read reviews</h6>
+          </div>
+          
+          
+          {% endif %}
 
+        <div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
 
 {% endblock %}
 

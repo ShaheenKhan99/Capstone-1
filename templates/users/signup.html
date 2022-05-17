@@ -4,8 +4,8 @@
 
 {% block content %}
 
-<div class="container center-block">
-  <h1>Register here!</h1>
+<div class="container text-center">
+  <h1 class="mb-5">Register here!</h1>
   <form method='POST'>
       {{form.hidden_tag()}}
       {% for field in form if field.widget.input_type != 'hidden' %}
@@ -14,7 +14,7 @@
           {{field}}
       </p>
       {% endfor %}
-      <button class="btn btn-info btn-sm">Sign Up</button>
+      <button class="btn btn-info btn-lg">Sign Up</button>
   </form>
 </div>
 

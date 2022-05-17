@@ -9,10 +9,10 @@
   {% else %}
 
   <div class="container">
-    <h4 class="mt-4 mb-4" style="text-align:center">Search Results</h4>
-    <div class="row">
+    <h4 class="mt-4 mb-4" style="text-align:center">All users</h4>
+    <div class="row bg-secondary">
       {% for user in users %}
-          <div class="col-sm-4">
+          <div class="col-sm-2 text-center">
             <div class="card bg-light mb-3" style="max-width: 18rem;">
         
                 <a href="/users/{{ user.id }}" class="card-link">

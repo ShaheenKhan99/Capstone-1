@@ -9,7 +9,7 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 
-class Follow(db.Model):
+class Follows(db.Model):
     """Connection of a follower <-> followed_user."""
 
     __tablename__ = 'follows'
@@ -39,11 +39,6 @@ class BookList(db.Model):
         autoincrement=True
     )
 
-    name = db.Column(
-        db.String,
-        nullable=True
-    )
-
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete='cascade')
@@ -55,18 +50,13 @@ class BookList(db.Model):
         db.ForeignKey('books.id', ondelete='cascade')
     )
 
-    rating = db.Column(
-        db.Integer, 
-        nullable=True
-    )
-
-
 
     def __repr__(self):
+        """Provide helpful representation when printed"""
+
         return f"<BookList {self.id} {self.user_id} {self.book_id}>"
 
     
-
 
 class User(db.Model):
     """User in the system."""
@@ -99,22 +89,26 @@ class User(db.Model):
     followers = db.relationship(
         "User",
         secondary="follows",
-        primaryjoin=(Follow.user_being_followed_id == id),
-        secondaryjoin=(Follow.user_following_id == id)
+        primaryjoin=(Follows.user_being_followed_id == id),
+        secondaryjoin=(Follows.user_following_id == id)
     )
 
     following = db.relationship(
         "User",
         secondary="follows",
-        primaryjoin=(Follow.user_following_id == id),
-        secondaryjoin=(Follow.user_being_followed_id == id)
+        primaryjoin=(Follows.user_following_id == id),
+        secondaryjoin=(Follows.user_being_followed_id == id),
+        overlaps="followers"
     )
    
     booklist = db.relationship('Book', secondary='booklists', backref='users')
     reviews = db.relationship('Review', backref='users')
 
     def __repr__(self):
+        """Provide helpful representation when printed"""
+
         return f"<User #{self.id}: {self.username}, {self.email}>"
+
 
     def is_followed_by(self, other_user):
         """Is this user followed by `other_user`?"""
@@ -198,7 +192,7 @@ class Book(db.Model):
 
     description = db.Column(
         db.Text,
-        nullable = True
+        nullable = False
     )
 
     author = db.Column(
@@ -210,28 +204,11 @@ class Book(db.Model):
         db.String,
         nullable = True
     )
-
-    avg_rating = db.Column(
-        db.Float,
-        nullable = True
-    )
-
-    num_of_ratings = db.Column(
-      db.Integer,
-      nullable = True
-    )
-
-    num_of_reviews = db.Column(
-      db.Integer,
-      nullable = True
-    )
-
     
     def __repr__(self):
         """Provide helpful representation when printed"""
         
-        return f"<Book {self.id} {self.title} {self.author} {self.description}>"
-
+        return f"<Book {self.id} {self.title} {self.description} {self.author}>"
 
 
 class Review(db.Model):

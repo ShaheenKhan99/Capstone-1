@@ -8,7 +8,7 @@ from wtforms.validators import InputRequired, Length, NumberRange, URL, Optional
 class AddUserForm(FlaskForm):
     """Form for registering new user"""
 
-    username = StringField("Username", validators=[DataRequired(), Length(max=40)])
+    username = StringField("Username", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
 
@@ -16,7 +16,7 @@ class AddUserForm(FlaskForm):
 class EditUserForm(FlaskForm):
     """Form for editing users."""
 
-    username = StringField('Username', validators=[DataRequired(), Length(max=40)])
+    username = StringField('Username', validators=[DataRequired()])
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
 
@@ -28,13 +28,6 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password: ", validators=[DataRequired()])
 
 ##########################################################################
-
-# to be implemented later
-class CreateBookListForm(FlaskForm):
-    """Form for creating playlist"""
-
-    name = StringField("Name Your Booklist", validators=[InputRequired()])
-
 
 
 class SearchForm(FlaskForm):

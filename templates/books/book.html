@@ -4,116 +4,125 @@
 
 {% block content %}
 
-<div class="container book-details">
-  <div class="row">
-    <div class="col-sm-6">
-      <h4 class="mt-4">{{ book.title.title() }}</h4>
-      <p class="lead" >{{ book.author }}</p>
-
-      {% if book.category %}
-        <p>{{ book.category }}</p>
-      {% endif %}
-
-      {% if book.publication_dt %}
-        <p>{{ book.publication_dt }}</p>
-      {% endif %}
-
-      <p>{{ book.description }}</p>
-      <p id="avg-rating">Average rating:<em>{{ avg_rating }}</em></p>
-
-
-    {% if g.user %}
-      <div class="row">
-        <div class="col-sm-6">
-          <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
-            <button class="btn btn-info btn-sm">Add Book To My Booklist</button>
-          </form>
-        </div>
-       
-        <div class="col-sm-6">
-          <form method="GET" action="/books/{{ book.id }}/reviews/add">
-            <button class="btn btn-info btn-sm">Write A Review</button>
-          </form>
-        </div>
-      </div>
-    {% endif %}
-  </div>
-
-  <div class="col-sm-6">
-    <div>
-      <ul class="user-stats nav nav-pills text-center">
-        <li class="stat mx-3">
-          <p class="small">Number of Ratings</p>
-          <p class="count">
-            {{ book.ratings | length }}</a>
-          </p>
-        </li>
-        <li class="stat mx-3">
-          <p class="small">Number of Reviews</p>
-          <p class="count">
-            {{ book.reviews | length }}</a>
-          </p>
-        </li>
-      </ul>
+<div class="card border-secondary mb-3 w-75 bg-light mx-auto">
+  <div class="row no-gutters">
+    <div class="col-md-4">
+      <img src="{{ book.image }}" class="card-img" alt="book cover">
     </div>
-
-    {% if g.user %}
-      <div class="text-center">
-      {% for rating in book.ratings %}
-        {% if g.user.id == rating.user_id %}
-          <p>Your rating for this book: <b>{{ rating.score }}</b></p>
-        {% endif %}
-      {% endfor %}
-      </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{ book.title.title() }}</h5>
+        <p class="card-text"><small class="text-muted">{{ book.author.title() }}</small></p>
+        <p class="card-text">{{ book.description }}</p>
+        <div>
+          <ul class="user-stats nav nav-pills text-center">
+            <li class="stat mx-3">
+              <p class="small">Number of Ratings</p>
+              <p class="count">
+                {{ book.ratings | length }}</a>
+              </p>
+            </li>
+            <li class="stat mx-3">
+              <p class="small">Number of Reviews</p>
+              <p class="count">
+                {{ book.reviews | length }}</a>
+              </p>
+            </li>
+          </ul>
+        </div>
+        <p id="avg-rating">Average rating: <em>{{ avg_rating }}</em></p>
+        {% if g.user %}
+      
+          {% for rating in book.ratings %}
+            {% if g.user.id == rating.user_id %}
+              <p><small class="text-muted">Your rating for this book: {{ rating.score }}</small></p>
+            {% endif %}
+          {% endfor %}
 
         <div class="text-center">
           {% if g.user.id != rating.user_id %}
             <form method="POST" action="/books/{{ book.id }}" method="POST">
-              <span class="star-rating">
+              <span class="star-rating">    
                 <input type="radio" name="book-rating" value="1"><i></i>
                 <input type="radio" name="book-rating" value="2"><i></i>
                 <input type="radio" name="book-rating" value="3"><i></i>
                 <input type="radio" name="book-rating" value="4"><i></i>
                 <input type="radio" name="book-rating" value="5"><i></i>
               </span>
-              <button class="btn btn-info btn-sm ml-5 mb-3" type="submit">Rate this book</button>    
+              <button class="btn btn-outline-info btn-sm ml-5 mb-3" type="submit">Rate this book</button>    
             </form>
           {% endif %}    
         </div>
+        
+        <div>
+          {% if book.users %}
+            {% for user in book.users %}
+              {% if g.user.id != user.id %}
+                <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
+                  <button class="btn btn-info btn-sm">Add Book To My Booklist</button>
+                </form>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
+              <button class="btn btn-info btn-sm">Add Book To My Booklist</button>
+            </form>
+          {% endif %}
+  
+          {% if reviews %}
+            {% for review in book.reviews %}
+              {% if g.user.id == review.user_id %}
+                <a href="/reviews/{{ review.id }}/edit" class="btn btn-secondary btn-sm">Edit My Review</a>
+              {% endif %}
+            {% endfor %}
+
+          {% else %}          
+            <form method="GET" action="/books/{{ book.id }}/reviews/add">
+              <button class="btn btn-info btn-sm">Write A Review</button>
+            </form>
+          {% endif %}
+        </div>
+
+        {% endif %}
       </div>
-      </div>
-    {% endif %}
+    </div>
   </div>
 </div>
-</div>        
 
-<div class="container details-area">
+
+<div class="details-area">
   <div class="row">
     <div class="col-sm-6 text-center">
       {% if book.users %}
 
       <div class="booklist-area"> 
-        <div class="card" style="width: 18rem;"> 
+        <div class="card"> 
           <div class="card-header">Users reading this book</div>
             <ul class="list-group list-group-flush">
             {% for user in book.users %}
               <li class="list-group-item"><a href="/users/{{ user.id }}">{{user.username }}</a></li>
             {% endfor %}
             </ul>
-        </div> 
+        </div>
       </div>
-
       {% endif %}
     </div>
     
+    
     <div class="col-sm-6 text-center">
-      {% if reviews %}
+      {% if book.reviews %}
         <div class="review-area">
-          <div class="card" style="width: 18rem;"> 
+          <div class="card"> 
             <div class="card-header">Reviews for {{ book.title.title() }}</div>
               <ul class="list-group list-group-flush">
-                {% for review in reviews %}
-                  <li class="list-group-item"><a href="/users/{{ review.user_id }}"><p>{{review.summary}}</p></a>
+                {% for review in book.reviews %}
+                  <li class="list-group-item">
+                    <a href="/users/{{ review.user_id }}">
+                      <p>{{review.summary}}</p>
+                    </a>
+                    {% if review.url %}
+                      <p><a href="{{ review.url }}" target="_blank">Read reviews on other sites</a></p>
+                    {% endif %}
                   </li>
                 {% endfor %}
               </ul>
@@ -124,6 +133,9 @@
 
   </div>
 </div>
+
+
+
 
 {% endblock %}
 

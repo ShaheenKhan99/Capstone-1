@@ -10,11 +10,11 @@ from secrets import API_SECRET_KEY
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import db, connect_db, User, Book, Review, BookList, Follow, Rating
+from models import db, connect_db, User, Book, Review, BookList, Follows, Rating
 
 from forms import AddUserForm, EditUserForm, LoginForm, SearchForm, AddReviewForm, EditReviewForm
 
-from api_helper import get_all_categories, get_books_by_category, get_book_by_title_author
+from api_helper import get_all_categories, get_books_by_category
 
 
 key = API_SECRET_KEY
@@ -43,21 +43,26 @@ db.create_all()
 API_BASE_URL = 'https://api.nytimes.com/svc/books/v3/'
 
 
-def add_book_to_database(title, author):
-    """Check to see if book is already in database. If it is, return the book already in the database. If book not in databse, add book to database and then return the book"""  
+
+def add_book_to_database(category, title):
+    """Check to see if book is already in database. If it is, return the book already in the database. If book not in database, add book to database and then return the book"""  
 
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-    results = get_book_by_title_author(title, author)
-    book = results[0]
+    book_results = get_books_by_category(category)
+    
+    books = [book for book in book_results if book['title']==title]
+    book = books[0]
 
     try:   
         book = Book(
                 title = book['title'],
                 author = book['author'],
-                description = book['description']
+                image = book['image'],
+                description = book['description'],
+                category = category
             )
 
         db.session.add(book)
@@ -66,6 +71,7 @@ def add_book_to_database(title, author):
         flash("Book already in database", "danger")
 
     return book
+
 
 
 ##########################################################################
@@ -87,33 +93,31 @@ def show_results_from_nyt_api():
     """Handle search form on home page and return results from NYT API"""
 
     category = request.args.get('category')
+    book_results = get_books_by_category(category)
+
+    return render_template('results.html', book_results=book_results, category=category)
+
+
+@app.route('/results/<category>/books/<book_title>', methods=["GET"])
+def show_details_for_book_from_nyt_api(category, book_title):
+    """Show details from NYT api for specific book"""
+
+    book_results = get_books_by_category(category)
     
-    results = get_books_by_category(category)
-
-    return render_template('results.html', results=results, category=category)
-
-
-@app.route('/books/<title>/author/<author>', methods=["GET"])  
-def show_book_info_from_nyt_api(title, author):
-    """Show book details from NYT API """  
-
-    results = get_book_by_title_author(title, author)
-    if len(results) >= 1:
-        results = results[0]
-
-    return render_template('books/book_details.html', results=results)
+    books = [book for book in book_results if book['title']==book_title]
+      
+    return render_template('books/book_details.html', books=books, category=category)
 
 
-
-@app.route('/books/<title>/author/<author>', methods=["POST"])  
-def add_book_to_list(title, author):
+@app.route('/results/<category>/books/<book_title>', methods=["POST"])  
+def add_new_book_to_list(category, book_title):
     """Check if book is on user booklist. If not, add book to user booklist"""  
 
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-    new_book_for_list = add_book_to_database(title, author)
+    new_book_for_list = add_book_to_database(category, book_title)
 
     booklist = BookList.query.filter(BookList.user_id==g.user.id).all()
 
@@ -134,7 +138,8 @@ def add_book_to_list(title, author):
 
     flash("Book added to your list", "success")
     return redirect(f"/users/{g.user.id}")
- 
+
+
 
 #####################################################################
 # User signup, login, logout
@@ -236,6 +241,11 @@ def list_users():
     Can take a 'q' param in querystring to search by that username.
     """
 
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+
     search = request.args.get('q')
 
     if not search:
@@ -249,6 +259,10 @@ def list_users():
 @app.route('/users/<int:user_id>')
 def show_user_profile(user_id):
     """Show all information on user including books saved and reviews created by user from the database ."""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
 
     user = User.query.get_or_404(user_id)
     
@@ -385,7 +399,7 @@ def show_user_reviews(user_id):
 def show_all_books():
     """Show list of all books in database"""
 
-    books = Book.query.all()
+    books = Book.query.order_by(Book.title).all()
     return render_template("books/index.html", books=books)
 
 
