@@ -1,5 +1,5 @@
 # BookGenie
-This is a capstone project for Springboard and is hosted on 
+This is the first capstone project for Springboard and is deployed on Heroku at this link:  [BookGenie](https://bookgenie.herokuapp.com/)
 
 ## Features
 
