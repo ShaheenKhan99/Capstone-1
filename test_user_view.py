@@ -43,8 +43,6 @@ class UserViewTestCase(TestCase):
         
         self.testuser_id = 1234
         self.testuser.id = self.testuser_id
-        
-        # self.testuser_id = self.testuser.id
 
         self.u1 = User.signup("abc", "test1@test.com", "password")
         self.u1_id = 456
@@ -55,8 +53,6 @@ class UserViewTestCase(TestCase):
         self.u3 = User.signup("hij", "test3@test.com", "password")
         self.u4 = User.signup("testing", "test4@test.com", "password")
 
-
-        # db.session.add(self.testuser)
         db.session.commit()
 
         self.client = app.test_client()
