@@ -1,6 +1,6 @@
 import requests
 
-from secrets import API_SECRET_KEY
+from confidential import API_SECRET_KEY
 
 
 API_BASE_URL = 'https://api.nytimes.com/svc/books/v3/'

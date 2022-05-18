@@ -4,7 +4,7 @@ import requests
 
 from flask import Flask, render_template, request, flash, redirect, session, g
 
-from secrets import API_SECRET_KEY
+from confidential import API_SECRET_KEY
 
 
 from flask_debugtoolbar import DebugToolbarExtension
