@@ -6,24 +6,27 @@
 
 {% if reviews %}
 <div class="container">
-  <h4 class="text-center mt-4">Book Reviews By {{ user.username}}</h4>
-  <ul class="list-group" id="reviews">
+  <div class="col-md-6">
+    <h4 class="text-center mt-4">Book Reviews By {{ user.username}}</h4>
+    <ul class="list-group" id="reviews">
 
-  {% for review in reviews %}
+      {% for review in reviews %}
 
-    <li class="list-group-item">
+        <li class="list-group-item">
     
-      <div class="booklist-area">
-        <p>Review for : <a href="/books/{{ review.book_id }}" class="book-link">
-      {{ review.book.title.title() }} 
-        </a>
-        </p>
-        <p>{{ review.summary }}
-        </p>  
-      </div> 
-    </li>
-  {% endfor %}
-  </ul>
+          <div class="booklist-area">
+            <p>Review for : 
+              <a href="/books/{{ review.book_id }}" class="book-link">
+              {{ review.book.title.title() }} 
+              </a>
+            </p>
+            <p>{{ review.summary }}
+            </p>  
+          </div> 
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
 
 {% else %}

@@ -41,8 +41,7 @@ class BookList(db.Model):
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete='cascade')
-        
+        db.ForeignKey('users.id', ondelete='cascade')    
     )
 
     book_id = db.Column(
@@ -204,6 +203,22 @@ class Book(db.Model):
         db.String,
         nullable = True
     )
+
+    avg_rating = db.Column(
+        db.Float,
+        nullable=True
+    )
+
+    num_of_ratings = db.Column(
+        db.Integer,
+        nullable = True
+    )
+
+    num_of_reviews = db.Column(
+        db.Integer,
+        nullable = True
+    )
+
     
     def __repr__(self):
         """Provide helpful representation when printed"""

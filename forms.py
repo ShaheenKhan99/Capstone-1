@@ -33,7 +33,7 @@ class LoginForm(FlaskForm):
 class SearchForm(FlaskForm):
     """Form for searching NYT API"""
 
-    category = SelectField("Search By Category", validators=[InputRequired()])
+    category = SelectField("Search By Category", validators=[DataRequired()])
 
 
 class AddReviewForm(FlaskForm):

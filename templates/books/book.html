@@ -30,7 +30,13 @@
             </li>
           </ul>
         </div>
-        <p id="avg-rating">Average rating: <em>{{ avg_rating }}</em></p>
+        <p id="avg-rating">Average rating: 
+          {% if book.avg_rating %} 
+          <em>{{ book.avg_rating }}</em>  
+          {% else %}
+          <em>Not rated</em>
+          {% endif %} 
+          </p>
         {% if g.user %}
       
           {% for rating in book.ratings %}
@@ -43,7 +49,7 @@
           {% if g.user.id != rating.user_id %}
             <form method="POST" action="/books/{{ book.id }}" method="POST">
               <span class="star-rating">    
-                <input type="radio" name="book-rating" value="1"><i></i>
+                <input type="radio" name="book-rating" value="1" required><i></i>
                 <input type="radio" name="book-rating" value="2"><i></i>
                 <input type="radio" name="book-rating" value="3"><i></i>
                 <input type="radio" name="book-rating" value="4"><i></i>

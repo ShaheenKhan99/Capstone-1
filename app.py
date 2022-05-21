@@ -1,10 +1,9 @@
 import os
 import pdb
 import requests
+import re
 
 from flask import Flask, render_template, request, flash, redirect, session, g
-
-from confidential import API_SECRET_KEY
 
 
 from flask_debugtoolbar import DebugToolbarExtension
@@ -16,8 +15,6 @@ from forms import AddUserForm, EditUserForm, LoginForm, SearchForm, AddReviewFor
 
 from api_helper import get_all_categories, get_books_by_category
 
-
-key = API_SECRET_KEY
 
 CURR_USER_KEY = "curr_user"
 
@@ -44,25 +41,17 @@ connect_db(app)
 # db.drop_all()
 db.create_all()
 
-
-API_BASE_URL = 'https://api.nytimes.com/svc/books/v3/'
-
-
+   
 
 def add_book_to_database(category, title):
-    """Check to see if book is already in database. If it is, return the book already in the database. If book not in database, add book to database and then return the book"""  
-
-    if not g.user:
-        flash("Please signup and/or login.", "danger")
-        return redirect("/")
+    """Get specific from NYT api and add to database"""  
 
     book_results = get_books_by_category(category)
     
     books = [book for book in book_results if book['title']==title]
     book = books[0]
 
-    try:   
-        book = Book(
+    book = Book(
                 title = book['title'],
                 author = book['author'],
                 image = book['image'],
@@ -70,11 +59,8 @@ def add_book_to_database(category, title):
                 category = category
             )
 
-        db.session.add(book)
-        db.session.commit()
-    except IntegrityError:
-        flash("Book already in database", "danger")
-
+    db.session.add(book)
+    db.session.commit()
     return book
 
 
@@ -86,65 +72,93 @@ def show_home():
     """Render home page including search bar for selecting a category"""
 
     form = SearchForm()
-    categories = get_all_categories()
 
-    form.category.choices = ['Select one'] + [category.title().replace('-', " ") for category in categories]
+    try: 
+        categories = get_all_categories()
 
-    return render_template('home.html', form=form, categories=categories)
+        form.category.choices = [category.title().replace('-', " ") for category in categories]
 
+        return render_template('home.html', form=form, categories=categories)
+
+    except Exception as e:
+        flash("We are experiencing some technical difficulties. Please try again later", "danger")
+
+        return redirect("/")
+
+    
 
 @app.route('/results', methods=["GET"])
 def show_results_from_nyt_api():
     """Handle search form on home page and return results from NYT API"""
 
     category = request.args.get('category')
-    book_results = get_books_by_category(category)
 
-    return render_template('results.html', book_results=book_results, category=category)
+    try: 
+        book_results = get_books_by_category(category)
 
+        return render_template('results.html', book_results=book_results, category=category)
+
+    except Exception as e:
+        flash("We are experiencing some technical difficulties. Please try again later", "danger")
+        
+        return redirect("/")
+
+    
 
 @app.route('/results/<category>/books/<book_title>', methods=["GET"])
 def show_details_for_book_from_nyt_api(category, book_title):
     """Show details from NYT api for specific book"""
 
-    book_results = get_books_by_category(category)
+    try: 
+        book_results = get_books_by_category(category)
     
-    books = [book for book in book_results if book['title']==book_title]
+        books = [book for book in book_results if book['title']==book_title]
       
-    return render_template('books/book_details.html', books=books, category=category)
+        return render_template('books/book_details.html', books=books, category=category)
+
+    except Exception as e:
+        flash("We are experiencing some technical difficulties. Please try again later", "danger")
+        
+        return redirect("/")
+    
 
 
 @app.route('/results/<category>/books/<book_title>', methods=["POST"])  
 def add_new_book_to_list(category, book_title):
-    """Check if book is on user booklist. If not, add book to user booklist"""  
+    """Check if book is in database. If not, add to database. Then check if book on user booklist. If not, add book to user booklist"""  
 
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-    new_book_for_list = add_book_to_database(category, book_title)
 
-    booklist = BookList.query.filter(BookList.user_id==g.user.id).all()
+    exists = db.session.query(db.exists().where(Book.title == book_title.upper())).scalar()
 
-    curr_books = [book.id for book in booklist]
-
-    if new_book_for_list.id in curr_books:
-        flash("This book is already on your list")
-        return redirect("f/users/{g.user.id}")
+    if exists:
+        new_book = Book.query.filter_by(title=book_title.upper()).first()
 
     else:
-        new_book_for_list = BookList(
+        new_book = add_book_to_database(category, book_title)   
+    
+
+    booklist = BookList.query.filter(BookList.user_id==g.user.id, BookList.book_id==new_book.id).all()
+
+    if not booklist:
+        new_book = BookList(
             user_id = g.user.id,
-            book_id = new_book_for_list.id
-        )
+            book_id = new_book.id
+            )
 
-    db.session.add(new_book_for_list)
-    db.session.commit()
+        db.session.add(new_book)
+        db.session.commit()
 
-    flash("Book added to your list", "success")
+        flash("Book added to your list", "success")
+    else:
+        flash("Book already on your list", "danger")
+
     return redirect(f"/users/{g.user.id}")
-
-
+    
+        
 
 #####################################################################
 # User signup, login, logout
@@ -222,7 +236,7 @@ def login():
             do_login(user)
             return redirect("/")
         else:
-            flash("Invalid credentials.", 'danger')
+            flash("BookGenie is unable to find this user. Please try again.", 'danger')
 
     return render_template('users/login.html', form=form)
 
@@ -261,6 +275,7 @@ def list_users():
     return render_template('users/index.html', users=users)
 
 
+
 @app.route('/users/<int:user_id>')
 def show_user_profile(user_id):
     """Show all information on user including books saved and reviews created by user from the database ."""
@@ -285,6 +300,7 @@ def show_following(user_id):
 
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
+
 
 
 @app.route('/users/<int:user_id>/followers')
@@ -348,7 +364,7 @@ def edit_profile():
             db.session.commit()
             return redirect(f"/users/{user.id}")
 
-        flash("Wrong password, please try again.", 'danger')
+        flash("BookGenie is unable to verify your password, please try again.", 'danger')
 
     return render_template('users/edit.html', form=form, user_id=user.id)
 
@@ -397,6 +413,20 @@ def show_user_reviews(user_id):
     return render_template('users/reviews.html', user=user, reviews=reviews)
 
 
+@app.route('/users/<int:user_id>/ratings', methods=["GET"])
+def show_user_ratings(user_id):
+    """Show list of ratings for this user"""
+
+    if not g.user:
+        flash("Please signup and/or login.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    ratings = Rating.query.filter(Rating.user_id==user_id).all()
+
+    return render_template('users/ratings.html', user=user, ratings=ratings)
+
+
 ###########################################################################
 # BOOKS ROUTES
 
@@ -408,8 +438,9 @@ def show_all_books():
     return render_template("books/index.html", books=books)
 
 
+
 @app.route("/books/<int:book_id>")
-def show_book_details(book_id):
+def show_book_details_from_db(book_id):
     """Display details about a specific book in database including reviews, users and ratings"""
 
     if not g.user:
@@ -422,14 +453,9 @@ def show_book_details(book_id):
     reviews = Review.query.filter(Review.book_id==book_id).all()
     rating = Rating.query.filter(Rating.book_id==book_id).all()
    
-    # Get average rating of movie
-    rating_scores = [rating.score for rating in book.ratings]
-    if len(rating_scores) > 0:
-        avg_rating = float(sum(rating_scores)) / len(rating_scores)
-    else:
-        avg_rating = "Not rated yet"
+    
+    return render_template('books/book.html', book=book, booklists=booklists, reviews=reviews, user=user, rating=rating)
 
-    return render_template('books/book.html', book=book, booklists=booklists, reviews=reviews, user=user, rating=rating, avg_rating=avg_rating)
 
 
 @app.route('/books/<int:book_id>', methods=["POST"])
@@ -454,6 +480,18 @@ def rate_book(book_id):
         rating.score = new_score
 
     db.session.add(rating)
+
+    
+    rating_scores = [rating.score for rating in book.ratings]
+    if len(rating_scores) > 0:
+        avg_rating = round((sum(int(rating_score) for rating_score in rating_scores)) / len(rating_scores), 2)
+    
+
+    book.avg_rating = avg_rating
+
+    num_of_ratings = len(rating_scores)
+    book.num_of_ratings = num_of_ratings
+
     db.session.commit()
 
     return redirect(f"/books/{book.id}")
@@ -560,6 +598,13 @@ def add_review(book_id):
         db.session.add(new_review)
         db.session.commit()
 
+        num_of_reviews = len(book.reviews)
+        book.num_of_reviews = num_of_reviews
+
+        db.session.commit()
+
+
+
         flash ("Review created successfully", "success")
         return redirect(f"/users/{g.user.id}")
 
@@ -626,4 +671,6 @@ def page_not_found(e):
     """404 NOT FOUND page."""
 
     return render_template('404.html'), 404
+
+
 

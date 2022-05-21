@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %} User Ratings  {% endblock %}
+
+{% block content %} 
+
+{% if ratings %}
+<div class="container ">
+  <h4 class="mt-4 mb-4 text-center">Book Ratings By {{ user.username}}</h4>
+  
+    <div class="col-sm-4 text-center">
+  <ul class="list-group" id="ratings">
+
+  {% for rating in ratings %}
+
+    <li class="list-group-item">
+    
+      <div class="booklist-area">
+        <p>Rating for : <a href="/books/{{ rating.book_id }}" class="book-link">
+      {{ rating.book.title.title() }} 
+        </a>
+        </p>
+        <p>{{ rating.score }}
+        </p>  
+      </div> 
+    </li>
+  {% endfor %}
+  </ul>
+  </div>
+ 
+</div>
+
+{% else %}
+<h4 class="text-center mt-4">{{ user.username}} has not rated any books yet</h4>
+
+{% endif %}
+
+{% endblock %}
+
