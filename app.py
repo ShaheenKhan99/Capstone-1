@@ -3,6 +3,8 @@ import pdb
 import requests
 import re
 
+from confidential import API_SECRET_KEY
+
 from flask import Flask, render_template, request, flash, redirect, session, g
 
 
