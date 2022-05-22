@@ -24,7 +24,7 @@ class EditUserForm(FlaskForm):
 class LoginForm(FlaskForm):
     """User login form"""
 
-    username = StringField("Username: ", validators=[DataRequired(), Length(max=30)])
+    username = StringField("Username: ", validators=[DataRequired()])
     password = PasswordField("Password: ", validators=[DataRequired()])
 
 ##########################################################################
@@ -40,7 +40,7 @@ class AddReviewForm(FlaskForm):
     """Form for creating review for book in database"""
 
     summary = TextAreaField("Summary", validators=[DataRequired()])
-    url = URLField("URL")
+    url = URLField("URL - Add link to review from another website")
 
 
 class EditReviewForm(FlaskForm):

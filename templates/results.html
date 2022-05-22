@@ -9,15 +9,15 @@
   <div class="card-deck">
     {% for book in book_results %}
         <div class="col-3">      
-          <div class="card bg-secondary" id="results"> 
+          <div class="card bg-secondary mb-2" id="results"> 
+            <a href="/results/{{ category.lower().replace('%20', "-") }}/books/{{ book.title.replace('%20', " ") }}">
             {% if book.image %}
               <img src="{{ book.image }}" class="card-img-top book-img" alt="book cover"> 
             {% else %}
               <p>Image Not Available</p>
             {% endif %}
-              <div class="card-footer text-center">
-                <a href="/results/{{ category.lower().replace('%20', "-") }}/books/{{ book.title.replace('%20', " ") }}" class="btn btn-outline-dark btn-sm">More Info</a>
-              </div>
+              
+            </a>
           </div>
         
         </div>

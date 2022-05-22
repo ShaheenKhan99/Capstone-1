@@ -10,7 +10,7 @@
 
   <div class="container">
     <h4 class="mt-4 mb-4" style="text-align:center">All users</h4>
-    <div class="row bg-secondary">
+    <div class="row bg-light">
       {% for user in users %}
           <div class="col-sm-2 text-center">
             <div class="card bg-light mb-3" style="max-width: 18rem;">
@@ -22,18 +22,19 @@
                 </a>
 
                 {% if g.user %}
+                  {% if g.user.id != user.id %}
 
-                  {% if g.user.is_following(user) %}
-                    <form method="POST" action="/users/stop-following/{{ user.id }}">
-                      <button class="btn btn-primary btn-sm">Unfollow</button>
-                    </form>
+                    {% if g.user.is_following(user) %}
+                      <form method="POST" action="/users/stop-following/{{ user.id }}">
+                        <button class="btn btn-primary btn-sm">Unfollow</button>
+                      </form>
                     
-                  {% else %}
-                    <form method="POST" action="/users/follow/{{ user.id }}">
-                      <button class="btn btn-outline-primary btn-sm">Follow</button>
-                    </form>
-                  {% endif %}
-                    
+                    {% else %}
+                      <form method="POST" action="/users/follow/{{ user.id }}">
+                        <button class="btn btn-outline-primary btn-sm">Follow</button>
+                      </form>
+                    {% endif %}
+                  {% endif %} 
                 {% endif %}
 
             </div>

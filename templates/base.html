@@ -18,57 +18,63 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="static/books.js"></script>
 </head>
 <body>
-    <nav class="navbar sticky-top navbar-expand navbar-dark bg-dark">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">BOOKGENIE</a>
-        </div>
+  <!-- Navbar-->
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="/">BOOKGENIE</a>
+
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+
         <ul class="nav navbar-nav">
           {% if request.endpoint != None %}
-          <li>
+          <li class="nav-item">
             <form class="navbar-form navbar-right" action="/users">
               <input name="q" class="form-control" placeholder="Search for users" id="search">
-              <button class="btn btn-default">
-                <span class="fa fa-search"></span>
-              </button>
+                <button class="btn btn-default">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search mb-2" viewBox="0 0 16 16">
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                  </svg>
+                </button>
             </form>
           </li>
           {% endif %}
 
-          <li>
+          <li class="nav-item">
             <a class="btn btn-info mx-4 my-4 my-sm-0 nav-link" href="/books">Saved Books</a>
           </li>
-          <li>
+          <li class="nav-item">
             <a class="btn btn-info my-4 my-sm-0 nav-link" href="/booklists">All Booklists</a>
           </li>
 
           {% if g.user %}
-          <li>
+          <li class="nav-item">
             <a class="btn my-2 my-sm-0 nav-link" href="/logout">Logout</a>
           </li>
 
-          <li id="profile">
+          <li id="profile" class="nav-item">
             <a class="btn my-2 my-lg-0 nav-link" href="/users/{{g.user.id}}">{{g.user.username }}</a>
           </li>
           
           {% else %}
-          <li>
+          <li class="nav-item">
             <a class="btn my-2 my-sm-0 nav-link" href="/signup">Sign up</a>
           </li>
-          <li>
+          <li class="nav-item">
             <a class="btn my-2 my-sm-0 nav-link" href="/login">Login</a>
           </li>
-                
-            
+                       
           {% endif %}
                    
         </ul>
-              
+
       </div>
     </nav>
+<!-- Navbar end-->
+
     <div class="container" id="flash">
       {% for category, message in get_flashed_messages(with_categories=True) %}
         <div class="alert alert-{{ category }}">{{ message }}</div>

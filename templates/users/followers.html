@@ -13,12 +13,13 @@
         <div class="col-lg-4 col-md-6 col-12">
           <div class="card user-card">
             <div class="card-inner">
-              <div class="card-contents">
+              <div class="card-contents text-center">
                 <a href="/users/{{ follower.id }}" class="card-link">
                   <p>{{ follower.username }}</p>
                 </a>
 
-                {% if g.user.is_following(follower) %}
+                {% if g.user.id != follower.id %}
+                  {% if g.user.is_following(follower) %}
                   <form method="POST"
                         action="/users/stop-following/{{ follower.id }}">
                     <button class="btn btn-primary btn-sm">Unfollow</button>
@@ -28,6 +29,7 @@
                     <button class="btn btn-outline-primary btn-sm">Follow</button>
                   </form>
                 {% endif %}
+              {% endif %}
 
               </div>
             </div>

@@ -4,19 +4,23 @@
 
 {% block content %}
 
-<div class="container text-center">
-  <h1 class="mb-5">Register here!</h1>
-  <form method='POST'>
-      {{form.hidden_tag()}}
-      {% for field in form if field.widget.input_type != 'hidden' %}
-      <p>
-          {{field.label}}
-          {{field}}
-      </p>
-      {% endfor %}
-      <button class="btn btn-info btn-lg">Sign Up</button>
-  </form>
+
+<div class="row justify-content-md-center">
+  <div class="col-md-7 col-lg-5">
+    <h3 class="mb-5">Register here!</h3>
+      <form method='POST'>
+        {{form.hidden_tag()}}
+          {% for field in form if field.widget.input_type != 'hidden' %}
+            <p>
+            {{ field.label }}
+            {{  field(class_='form-control')}}
+            </p>
+          {% endfor %}
+            <button class="btn btn-info btn-block btn-lg">Sign Up</button>
+      </form>
+  </div>
 </div>
+
 
 
 {% endblock %}

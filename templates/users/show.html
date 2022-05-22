@@ -12,21 +12,19 @@
          
         {% for book in user.booklist %}
        
-          <li class="list-group-item bg-light text-center">
-            <a href="/users/{{ user.id }}"></a>
+          <li class="list-group-item bg-secondary text-center">
             <a href="/books/{{ book.id }}" class="book-link">
               <div class="booklist-area">
-                <img src="{{ book.image }}" alt="book cover" style="width:150px; height:150px;">
-                <p>{{ book.title.title() }}</p>  
+                <img src="{{ book.image }}" alt="book cover" style="width:250px; height:250px;">
               </div>
             </a>
 
             {% if g.user.id == user.id %}
-
-              <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}" class="form-inline">
-                <button class="btn btn-outline-danger btn-sm">Remove</button>
+            <div class=class="row justify-content-center">
+              <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}" >
+                <button class="btn btn-danger btn-sm mt-3">Remove</button>
               </form>
-
+            </div>
             {% endif %}
 
           </li>
