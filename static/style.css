@@ -1,5 +1,7 @@
 /* Colors used
 #f6f7f2 : light-yellow-green
+#efeeea : light grey
+#cabb86 : dark beige
 #3C7A89 : teal-blue
 #fff : light-gray-white
 #677580 : generic-grey
@@ -11,7 +13,7 @@
 /* ====================== General ========================== */
 
 body {
-  background-color: #f6f7f2;
+  background-color: #efeeea;
   font-family: 'Open Sans', sans-serif;
 }
 
@@ -41,11 +43,23 @@ body.error-404 {
   cursor: pointer;
 }
 
+#saved-books {
+  background-color: #cabb86;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 100;
+  font-size: small;
+}
+
+#search-categories {
+  background-color: #cabb86;
+}
+
 
 /* ======================= Nav =========================================== */
 
 .navbar {
-  background-color: #fff;
+  background-color: #c4c3c0;
   height: 70px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   margin-bottom: 1rem;
@@ -54,7 +68,6 @@ body.error-404 {
 }
 
 .navbar a {
-  color: #777774 ;
   font-size: 15px;
   font-weight: bold;
 }
@@ -72,10 +85,14 @@ body.error-404 {
   letter-spacing: 10px;
 }
 
+#navbarNav {
+  background-color:#c4c3c0 ;
+}
 
 ul.nav.navbar-nav {
   align-items: center;
 }
+
 
 ul.nav.navbar-nav li {
   margin: 0 0.5rem;
@@ -117,10 +134,6 @@ nav form.navbar-form {
   border: 2px solid #3C7A89;
 }
 
-#profile {
-  border-radius: 10px;
-}
-
 
 /* on "onboarding" pages (signup & login), the navbar is
    different: no search box, the logo is centered, and it has
@@ -157,10 +170,6 @@ nav form.navbar-form {
   display: none;
 }
 
-.onboarding {
-  background-color: greenyellow;
-}
-
 @media (max-width: 468px) {
   nav form.navbar-form {
     display: none;
@@ -171,7 +180,15 @@ nav + .container {
   margin-bottom: 1rem;
 }
 
+#profile {
+  text-decoration: underline;
+}
+
 /* ===================== User profile ===================================*/
+
+#user-detail {
+  background-color: #adaba8;
+}
 
 #username-heading {
   text-align: left;
@@ -241,6 +258,7 @@ h6 {
   background-color:#C3C4CB;
   text-align:center;
   font-size: 20px;
+  padding:10px;
 }
 
 #avg-rating {

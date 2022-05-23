@@ -5,22 +5,24 @@
 {% block user_details %}
 
 <div class="container">
-<h2 class="text-center mt-4">{{ user.username}}'s Booklist</h2>
-<ul class="list-group" id="booklist">
-  {% for book in user.booklist %}
+  <div class="col-md-6">
+    <h5 class="text-center mt-4">{{ user.username}}'s Booklist</h5>
+      <ul class="list-group" id="booklist">
+        {% for book in user.booklist %}
 
-  <li class="list-group-item">
-    <a href="/users/{{ user.id }}"></a>
+        <li class="list-group-item">
+          <a href="/users/{{ user.id }}"></a>
 
-    <a href="/books/{{ book.id }}" class="book-link">
-    <div class="booklist-area">
-      <p>{{ book.title.title() }}
-      <p>  
-    </div>
-  </a>
-  </li>
-  {% endfor %}
-</ul>
+          <a href="/books/{{ book.id }}" class="book-link">
+          <div class="booklist-area">
+            <p>{{ book.title.title() }}
+            <p>  
+          </div>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+  </div>
 </div>
 {% endblock %}
 

@@ -5,40 +5,33 @@
 {% block user_details %}
 
 <div class="row mt-8">
-  <div class="col-md-6 bg-secondary">
-    <h6 class="mt-4">My books</h6>
-    
-      <ul class="list-group" id="booklist">
-         
-        {% for book in user.booklist %}
-       
-          <li class="list-group-item bg-secondary text-center">
-            <a href="/books/{{ book.id }}" class="book-link">
-              <div class="booklist-area">
-                <img src="{{ book.image }}" alt="book cover" style="width:250px; height:250px;">
-              </div>
-            </a>
-
-            {% if g.user.id == user.id %}
-            <div class=class="row justify-content-center">
-              <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}" >
-                <button class="btn btn-danger btn-sm mt-3">Remove</button>
-              </form>
-            </div>
-            {% endif %}
-
-          </li>
-       
-        {% endfor %}
-        
-      </ul>
-    </div>
+  <div class="col-sm-6 bg-secondary">
+    <h6 class="mt-4">My Books</h6>
+    <div class="card-deck">
+      {% for book in user.booklist %}
+          <div class="col-4">      
+            <div class="card bg-secondary mb-2"> 
+              <a href="/books/{{ book.id }}" class="book-link">
+                <img src="{{ book.image }}" alt="book cover" class="card-img-top book-img">
+              </a>
+              {% if g.user.id == user.id %}
+                  <div class="row justify-content-center">
+                    <form method="POST" action="/booklists/{{ user.id }}/delete/{{ book.id }}">
+                      <button class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                  </div>
+                {% endif %}
+            </div>          
+          </div>     
+      {% endfor %}
+    </div>    
+  </div>
 
   <div class="col-sm-6 bg-secondary">
 
     {% if user.reviews %}
 
-      <h6 class="mt-4">My reviews</h6>
+      <h6 class="mt-4">My Reviews</h6>
       <ul class="list-group" id="booklist">
               
         {% for review in user.reviews %}
