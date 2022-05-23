@@ -54,7 +54,7 @@ body.error-404 {
 }
 
 .navbar a {
-  color: #677580;
+  color: #777774 ;
   font-size: 15px;
   font-weight: bold;
 }
@@ -67,10 +67,9 @@ body.error-404 {
 .navbar-brand {
   display: flex;
   align-items: center;
-  font-size: 400px;
-  font-weight: 800;
+  font-size: 600px;
   font-family: 'Macondo', cursive;
-  letter-spacing: 6px;
+  letter-spacing: 10px;
 }
 
 
@@ -118,10 +117,16 @@ nav form.navbar-form {
   border: 2px solid #3C7A89;
 }
 
+#profile {
+  border-radius: 10px;
+}
+
+
 /* on "onboarding" pages (signup & login), the navbar is
    different: no search box, the logo is centered, and it has
    a background color.
  */
+
 
 .onboarding > .navbar {
   background-size: 100% 100%;
@@ -153,7 +158,7 @@ nav form.navbar-form {
 }
 
 .onboarding {
-  background-color: #fff;
+  background-color: greenyellow;
 }
 
 @media (max-width: 468px) {

@@ -8,7 +8,7 @@
 <div class="container-fluid">
   <div class="card-deck">
     {% for book in book_results %}
-        <div class="col-3">      
+        <div class="col-sm-3">      
           <div class="card bg-secondary mb-2" id="results"> 
             <a href="/results/{{ category.lower().replace('%20', "-") }}/books/{{ book.title.replace('%20', " ") }}">
             {% if book.image %}
