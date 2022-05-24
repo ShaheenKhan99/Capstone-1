@@ -9,7 +9,7 @@
         <h4 class="mt-4 mb-4" style="text-align:center">All Saved Books</h4>
         <div class="card-deck">
             {% for book in books %}
-                <div class="col-3">  
+                <div class="col-sm-3">  
                     <a href="/books/{{ book.id}}" class="link">   
                     <div class="card bg-light" id="results"> 
                         {% if book.image %}
