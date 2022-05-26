@@ -13,7 +13,7 @@
                     <a href="/books/{{ book.id}}" class="link">   
                     <div class="card bg-light" id="results"> 
                         {% if book.image %}
-                            <img src="{{ book.image }}" class="card-img-top book-img" alt="book cover"> 
+                            <img src="{{ book.image }}" class="card-img-top book-img" alt="cover of {{ book.title }}"> 
                         {% else %}
                             <p>Image Not Available</p>
                         {% endif %}

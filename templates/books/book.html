@@ -8,7 +8,7 @@
   <div class="row no-gutters">
     
     <div class="col-md-4">
-      <img src="{{ book.image }}" class="card-img" alt="book cover">
+      <img src="{{ book.image }}" class="card-img" alt="cover of {{ book.title }}">
     </div>
     <div class="col-md-8">
       <div class="card-body">
@@ -18,19 +18,23 @@
         <p class="card-text">{{ book.description }}</p>
 
         <div>
-          {% if book.users %}
-            {% for user in book.users %}
-              {% if g.user.id != user.id %}
-                <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
-                  <button class="btn btn-info btn-sm">Add Book To My Booklist</button>
-                </form>
-              {% endif %}
-            {% endfor %}
-          {% else %}
-            <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
-              <button class="btn btn-info btn-sm">Add Book To My Booklist</button>
-            </form>
-          {% endif %}
+            {% if not booklists %}
+
+              <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
+                <button class="btn btn-info btn-sm">Add this book</button>
+              </form>
+          
+            {% elif g.user in book.users %}
+              <form method="POST" action="/booklists/{{ g.user.id }}/delete/{{ book.id }}">
+                <button class="btn btn-info btn-sm">Remove Book From My Booklist</button>
+              </form>
+
+            {% else %}
+              <form method="POST" action="/booklists/{{ g.user.id }}/add/{{ book.id }}">
+                <button class="btn btn-info btn-sm">Add this book</button>
+              </form>
+            {% endif %}
+
 
           {% if reviews %}
             {% for review in book.reviews %}

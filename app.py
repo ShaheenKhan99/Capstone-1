@@ -5,7 +5,6 @@ import re
 
 from flask import Flask, render_template, request, flash, redirect, session, g
 
-
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
@@ -62,7 +61,6 @@ def add_book_to_database(category, title):
     db.session.add(book)
     db.session.commit()
     return book
-
 
 
 ##########################################################################
@@ -131,7 +129,6 @@ def add_new_book_to_list(category, book_title):
         flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-
     exists = db.session.query(db.exists().where(Book.title == book_title.upper())).scalar()
 
     if exists:
@@ -140,7 +137,6 @@ def add_new_book_to_list(category, book_title):
     else:
         new_book = add_book_to_database(category, book_title)   
     
-
     booklist = BookList.query.filter(BookList.user_id==g.user.id, BookList.book_id==new_book.id).all()
 
     if not booklist:
@@ -171,6 +167,7 @@ def add_user_to_g():
         g.user = User.query.get(session[CURR_USER_KEY])
     else:
         g.user = None
+
 
 def do_login(user):
     """Log in user"""
@@ -263,7 +260,6 @@ def list_users():
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
-
 
     search = request.args.get('q')
 
@@ -408,8 +404,7 @@ def show_user_reviews(user_id):
 
     user = User.query.get_or_404(user_id)
     reviews = Review.query.filter(Review.user_id==user_id).all()
-    
-   
+      
     return render_template('users/reviews.html', user=user, reviews=reviews)
 
 
@@ -465,7 +460,6 @@ def rate_book(book_id):
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
-
    
     new_score = request.form.get("book-rating")
     book = Book.query.get_or_404(book_id)
@@ -475,18 +469,15 @@ def rate_book(book_id):
 
     if not rating:
         rating = Rating(score=new_score, user_id=user_id, book_id=book_id)
-
     else: 
         rating.score = new_score
 
     db.session.add(rating)
-
     
-    rating_scores = [rating.score for rating in book.ratings]
-    if len(rating_scores) > 0:
-        avg_rating = round((sum(int(rating_score) for rating_score in rating_scores)) / len(rating_scores), 2)
+    rating_scores = [int(rating.score) for rating in book.ratings]
+    if rating_scores:
+        avg_rating = round((sum((rating_score) for rating_score in rating_scores)) / len(rating_scores), 2)
     
-
     book.avg_rating = avg_rating
 
     num_of_ratings = len(rating_scores)
@@ -495,7 +486,6 @@ def rate_book(book_id):
     db.session.commit()
 
     return redirect(f"/books/{book.id}")
-
 
 ############################################################################
 # BOOKLISTS ROUTES
@@ -520,7 +510,6 @@ def add_saved_book_to_booklist(user_id, book_id):
     new_book_for_list = Book.query.get_or_404(book_id)
 
     booklist = BookList.query.filter(BookList.user_id==g.user.id).all()
-
     
     curr_books = [book.id for book in booklist]
 
@@ -548,7 +537,6 @@ def remove_book_from_booklist(user_id, book_id):
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
-
 
     if not g.user.id == user_id:
         flash("Access unauthorized.", "danger")
@@ -603,8 +591,6 @@ def add_review(book_id):
 
         db.session.commit()
 
-
-
         flash ("Review created successfully", "success")
         return redirect(f"/users/{g.user.id}")
 
@@ -620,14 +606,12 @@ def edit_review(review_id):
         flash("Please signup and/or login.", "danger")
         return redirect("/")
 
-
     review = Review.query.get_or_404(review_id)
 
     if review.user_id != g.user.id:
         flash("Access unauthorized", "danger")
         return redirect(f"/users/{g.user.id}")
     
-
     form = EditReviewForm(obj=review)
 
     if form.validate_on_submit():
@@ -649,7 +633,6 @@ def delete_review(review_id):
     if not g.user:
         flash("Please signup and/or login.", "danger")
         return redirect("/")
-
 
     review = Review.query.get_or_404(review_id)
 

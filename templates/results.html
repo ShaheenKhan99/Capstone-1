@@ -12,7 +12,7 @@
           <div class="card bg-secondary mb-2" id="results"> 
             <a href="/results/{{ category.lower().replace('%20', "-") }}/books/{{ book.title.replace('%20', " ") }}">
             {% if book.image %}
-              <img src="{{ book.image }}" class="card-img-top book-img" alt="book cover"> 
+              <img src="{{ book.image }}" class="card-img-top book-img" alt="cover of {{ book.title }}"> 
             {% else %}
               <p>Image Not Available</p>
             {% endif %}
