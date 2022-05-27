@@ -17,7 +17,8 @@ def get_all_categories():
     results = data["results"]
     
     categories = [result['list_name_encoded'] for result in results]
-    categories = list(dict.fromkeys(categories))
+    categories_result = list(dict.fromkeys(categories))
+    categories = [category.title().replace('-', " ") for category in categories_result]
 
     return categories
 

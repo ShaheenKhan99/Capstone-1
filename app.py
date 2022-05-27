@@ -65,6 +65,26 @@ def add_book_to_database(category, title):
 
 ##########################################################################
 
+@app.route('/2')
+def show_home2():
+    """Render home page including search bar for selecting a category"""
+
+    form = SearchForm()
+
+    try: 
+        categories = get_all_categories()
+
+        form.category.choices = [category.title().replace('-', " ") for category in categories]
+
+        return render_template('home.html', form=form, categories=categories)
+
+    except Exception as e:
+        flash("We are experiencing some technical difficulties. Please try again later", "danger")
+
+        return redirect("/")
+
+
+
 @app.route('/')
 def show_home():
     """Render home page including search bar for selecting a category"""
@@ -74,7 +94,9 @@ def show_home():
     try: 
         categories = get_all_categories()
 
-        form.category.choices = [category.title().replace('-', " ") for category in categories]
+        #form.category.choices = [category.title().replace('-', " ") for category in categories]
+
+        form.category.choices = [category for category in categories]
 
         return render_template('home.html', form=form, categories=categories)
 
@@ -452,7 +474,6 @@ def show_book_details_from_db(book_id):
     return render_template('books/book.html', book=book, booklists=booklists, reviews=reviews, user=user, rating=rating)
 
 
-
 @app.route('/books/<int:book_id>', methods=["POST"])
 def rate_book(book_id):
     """Post rating for individual book"""
@@ -476,7 +497,7 @@ def rate_book(book_id):
     
     rating_scores = [int(rating.score) for rating in book.ratings]
     if rating_scores:
-        avg_rating = round((sum((rating_score) for rating_score in rating_scores)) / len(rating_scores), 2)
+        avg_rating = round(sum(rating_scores) / len(rating_scores), 2)
     
     book.avg_rating = avg_rating
 
